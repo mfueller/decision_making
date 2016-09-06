@@ -34,6 +34,7 @@ import rospy
 from diagnostic_msgs.msg import DiagnosticArray
 from rqt_gui_py.plugin import Plugin
 from .graph_widget import GraphWidget
+import std_msgs
 
 
 class DecisionMakingGraph(Plugin):
@@ -53,6 +54,22 @@ class DecisionMakingGraph(Plugin):
 
         self._subscriber = None
         self._subscribe('/decision_making/monitoring')
+
+        self._event_publisher = None
+        self._widget.graph_changed = self.graph_changed
+        self._widget.mouseDoubleClickOnEvent = self.mouseDoubleClickOnEvent
+
+    def graph_changed(self, graph):
+        print("Update Graph to " + graph.node_name)
+        event_topic = "/decision_making" + graph.node_name + "/events"
+        self._event_publisher = rospy.Publisher(event_topic, std_msgs.msg.String, queue_size=1)
+
+    def mouseDoubleClickOnEvent(self, graph, event_name):
+        print("DecisionMakingGraph", graph, event_name)
+        if(self._event_publisher is not None):
+            event_msg = std_msgs.msg.String()
+            event_msg.data = event_name
+            self._event_publisher.publish(event_msg)
 
     def _on_message(self, message):
         if not message.status[0].name[-len(self._filter):] == self._filter:
