@@ -68,7 +68,7 @@ class DecisionMakingGraph(Plugin):
         print("DecisionMakingGraph", graph, event_name)
         if(self._event_publisher is not None):
             event_msg = std_msgs.msg.String()
-            event_msg.data = event_name
+            event_msg.data = "/" + event_name
             self._event_publisher.publish(event_msg)
 
     def _on_message(self, message):
