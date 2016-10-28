@@ -19,18 +19,18 @@
 using namespace std;
 
 
-struct Log{
+struct LogOut{
 	static boost::mutex& mutex(){ static boost::mutex LogMtx; return LogMtx; }
 	boost::mutex::scoped_lock locker;
-	Log():locker(mutex()){}
+	LogOut():locker(mutex()){}
 	template<class A>
-	Log& operator<<(const A& a){ std::cout<<a; std::cout.flush(); return *this; }
+	LogOut& operator<<(const A& a){ std::cout<<a; std::cout.flush(); return *this; }
 	typedef void(*endl_t)();
-	Log& operator<<(endl_t a){ std::cout<<std::endl; std::cout.flush(); return *this; }
+	LogOut& operator<<(endl_t a){ std::cout<<std::endl; std::cout.flush(); return *this; }
 };
 inline void endl(){}
 
-#define cout Log()
+//#define cout LogOut()
 
 #define DMDEBUG(...) //__VA_ARGS__
 

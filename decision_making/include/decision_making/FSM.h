@@ -137,8 +137,14 @@ public:
 			if(event==decision_making::Event(EVENT,state_call_ctx)){ \
 				DMDEBUG( cout<<" GOTO("<<fsm_name<<":"<<decision_making::Event(EVENT,call_ctx)<< "->" #DO ") "; ) \
 				DO;\
-			}
+			} \
+			else if(event==decision_making::Event(EVENT)){ \
+                                DMDEBUG( cout<<" GOTO("<<fsm_name<<":"<<decision_making::Event(EVENT,call_ctx)<< "->" #DO ") "; ) \
+                                DO;\
+                        }
+
 #define FSM_EVENT(EVENT) decision_making::Event(#EVENT,state_call_ctx))
+#define FSM_EVENT_(EVENT) decision_making::Event(EVENT,state_call_ctx))
 
 #define FSM_ON_CONDITION(COND, DO) \
 			if(COND){ \
@@ -157,6 +163,7 @@ public:
 
 #define __DEFSUBEVENTQUEUE(TASK) decision_making::ScoppedThreads::EventQueuePtr events_queu##TASK( new decision_making::EventQueue(events_queue) );
 #define __DEFSUBCTEXT(TASK) decision_making::ScoppedThreads::CallContextPtr call_ctx##TASK( new decision_making::CallContext(state_call_ctx, #TASK) );
+#define __DEFSUBCTEXT_KEY(TASK,NAME) decision_making::ScoppedThreads::CallContextPtr call_ctx##TASK( new decision_making::CallContext(state_call_ctx, #TASK) );
 #define __SHR_TO_REF(X) (*(X.get()))
 #define FSM_CALL_TASK(TASK) \
 			__DEFSUBEVENTQUEUE(TASK) __DEFSUBCTEXT(TASK) \
@@ -164,6 +171,14 @@ public:
 			SUBMACHINESTHREADS.add(call_ctx##TASK); \
 			SUBMACHINESTHREADS.add(\
 				new boost::thread(  CALL_REMOTE(TASK, boost::ref(__SHR_TO_REF(call_ctx##TASK)), boost::ref(__SHR_TO_REF(events_queu##TASK)))  ));
+
+#define FSM_CALL_TASK_KEY(KEY, TASK) \
+                        __DEFSUBEVENTQUEUE(TASK) __DEFSUBCTEXT_KEY(TASK, KEY) \
+                        SUBMACHINESTHREADS.add(events_queu##TASK); \
+                        SUBMACHINESTHREADS.add(call_ctx##TASK); \
+                        SUBMACHINESTHREADS.add(\
+                                new boost::thread(  CALL_REMOTE(KEY, boost::ref(__SHR_TO_REF(call_ctx##TASK)), boost::ref(__SHR_TO_REF(events_queu##TASK)))  ));
+
 
 #define FSM_CALL_FSM(NAME) \
 			__DEFSUBEVENTQUEUE(NAME) \

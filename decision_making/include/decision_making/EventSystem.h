@@ -121,6 +121,7 @@ struct Event{
 		return _name==e._name;
 	}
 	bool operator==(const Event& e)const{
+	        //std::cerr << "Compare event " << e._name << " vs " << this->_name << std::endl;
 		return equals(e);
 	}
 	bool operator!=(const Event& e)const{
