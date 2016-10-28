@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import division
 from os import path
 from threading import Lock
+from functools import partial
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt
 from python_qt_binding.QtGui import QIcon, QImage, QPainter, QColor
@@ -127,6 +128,8 @@ class GraphWidget(QWidget):
         self.decision_graphs_combo_box.addItem(custom_graph.source)
         self.decision_graphs_combo_box.setCurrentIndex(self.decision_graphs_combo_box.findText(custom_graph.source))
 
+        self.graph_changed(self._current_graph)
+
     # Export graph as image
     def _export(self):
         file_name, _ = QFileDialog.getSaveFileName(self,
@@ -194,6 +197,8 @@ class GraphWidget(QWidget):
                 if state is not None:
                     self._reset_graph_state(state[0], state[1])
 
+            self.graph_changed(self._current_graph)
+
         self._lock.release()
 
     def _get_data_from_message(self, message):
@@ -209,11 +214,28 @@ class GraphWidget(QWidget):
 
         for node_item in self._current_graph.nodes.itervalues():
             self._scene.addItem(node_item)
-        for edge_items in self._current_graph.edges.itervalues():
-            for edge_item in edge_items:
+        for edge_items_key, edge_items in self._current_graph.edges.iteritems():
+            for edge_item in self._current_graph.edges[edge_items_key]:
                 edge_item.add_to_scene(self._scene)
+
+                if(edge_item._label is not None):
+                    edge_item._label.mouseDoubleClickEvent = partial(self._mouse_double_click_callback, edge_items_key)
+                if(edge_item._arrow is not None):
+                    edge_item._arrow.mouseDoubleClickEvent = partial(self._mouse_double_click_callback, edge_items_key)
 
         self._scene.setSceneRect(self._scene.itemsBoundingRect())
 
     def _fit_to_view(self):
         self.graphics_view.fitInView(self._scene.itemsBoundingRect(), Qt.KeepAspectRatio)
+
+    def _mouse_double_click_callback(self, edge_item, qt_event=None):
+        if(qt_event==None):
+            return
+        self.mouseDoubleClickOnEvent(self._current_graph, edge_item)
+
+    def mouseDoubleClickOnEvent(self, graph, event_name):
+        print(graph, event_name)
+        pass
+
+    def graph_changed(self, graph):
+        pass
