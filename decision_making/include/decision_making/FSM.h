@@ -142,6 +142,14 @@ public:
                                 DMDEBUG( cout<<" GOTO("<<fsm_name<<":"<<decision_making::Event(EVENT,call_ctx)<< "->" #DO ") "; ) \
                                 DO;\
                         }
+#define FSM_DEFAULT(DO) \
+                        if(event!=event.equals(decision_making::Event::SPIN_EVENT())){ \
+                                DMDEBUG( cout<<" GOTO DEFAULT ->" #DO ") "; ) \
+                                DO;\
+                        }
+#define FSM_FORWARD_EVENT \
+                            DMDEBUG( cout<<" FORWARD EVENT("<<event<<") "; ) \
+                            events_queue->raiseEvent(event);
 
 #define FSM_EVENT(EVENT) decision_making::Event(#EVENT,state_call_ctx))
 #define FSM_EVENT_(EVENT) decision_making::Event(EVENT,state_call_ctx))
