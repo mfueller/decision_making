@@ -30,11 +30,7 @@ struct LogOut{
 };
 inline void endl(){}
 
-<<<<<<< HEAD
-//#define cout LogOut()
-=======
 //#define cout Log()
->>>>>>> dev_rqt_interaction
 
 #define DMDEBUG(...) //__VA_ARGS__
 
